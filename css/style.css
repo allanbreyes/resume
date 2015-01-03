@@ -76,7 +76,7 @@ a {
   color: #1199C3;
   text-decoration: none;
   margin-top: 10px;
-  display: block;
+  display: inline-block; /* EDIT */
 }
 
 .welcome-message {
