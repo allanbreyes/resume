@@ -76,7 +76,16 @@ a {
   color: #1199C3;
   text-decoration: none;
   margin-top: 10px;
-  display: inline-block; /* EDIT */
+  display: block;
+}
+
+#header a {
+  display: inline-block;
+}
+
+a:hover {
+  color: #12A5D2;
+  text-decoration: underline;
 }
 
 .welcome-message {
@@ -212,4 +221,8 @@ span {
   .biopic {
     display: block;
   }
+}
+
+#role {
+  color: #1199C3;
 }

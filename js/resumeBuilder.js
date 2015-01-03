@@ -7,9 +7,15 @@ var appendObjectProperties = function(object, location, formatter, propertyPlace
   }
 };
 
-var appendListOfObjects = function(list, location, formatter, propertyPlaceholder, valuePlaceholder) {
-  for (var object in list) {
+var appendListOfObjects = function(list, location, formatter, valuePlaceholder) {
+  for (var key in list) {
+    $(location).append(formatter.replace(valuePlaceholder, list[key]));
   }
+};
+
+var replaceData = function(data, formatter, dataPlaceholder) {
+  dataPlaceholder = dataPlaceholder || '%data%';
+  return formatter.replace(dataPlaceholder, data);
 };
 
 var bio = {
@@ -23,7 +29,7 @@ var bio = {
     'twitter': "<a href='http://goo.gl/or6dWO'>@allanbreyes</a>",
     'location': "<a href='#'>Chicago, IL</a>"
   },
-  'welcomeMessage': 'NotYetImplemented',
+  'welcomeMessage': 'Experience leading the brightest minds in engineering and the bravest souls in the military.',
   'skills': ['Software Engineering', 'Web Development', 'Mechanical Engineering',
               'Product Design', 'Machine Learning', 'HTML5/CSS3', 'Ruby on Rails',
               'Python', 'Django', 'JavaScript', 'Java', 'GNU Octave', 'Linux',
@@ -31,14 +37,20 @@ var bio = {
               'Project Management', 'Automation'],
   'biopic': 'https://dl.dropboxusercontent.com/u/10730795/resources/mugs/200x200.jpg',
   'display': function() {
-    var name = HTMLheaderName.replace("%data%", bio.name);
-    var role = HTMLheaderRole.replace("%data%", bio.role).replace('<hr/>','');
+    var name = replaceData(bio.name, HTMLheaderName);
+    var role = replaceData(bio.role, HTMLheaderRole).replace('<hr/>','');
 
-    $("#header").prepend(role)
+    $('#header').prepend(role)
                 .prepend(name);
 
     appendObjectProperties(bio.contacts, '#topContacts', HTMLcontactGeneric, '%contact%', '%data%');
     $('#topContacts').children().clone().appendTo('#footerContacts');
+
+    $('#header').append(replaceData(bio.biopic, HTMLbioPic))
+                .append(replaceData(bio.welcomeMessage, HTMLWelcomeMsg))
+                .append(HTMLskillsStart);
+
+    appendListOfObjects(bio.skills, '#skills', HTMLskills, '%data%');
   }
 };
 
@@ -60,7 +72,26 @@ var education = {
     }
   ],
   'display': function() {
-    // NotYetImplemented
+    for (var i in this.schools) {
+      $('#education').append(replaceData(i, HTMLschoolStart));
+      var id = '#school-entry-' + i;
+      var school = this.schools[i];
+      $(id).append((replaceData(school.name, HTMLschoolName) + replaceData(school.degree, HTMLschoolDegree))
+           .replace('#', school.url))
+           .append(replaceData(school.dates, HTMLschoolDates))
+           .append(replaceData(school.location, HTMLschoolLocation))
+           .append(replaceData(school.majors, HTMLschoolMajor));
+    }
+
+    $('#education').append(HTMLonlineClasses);
+    for (var j in this.onlineCourses) {
+      $('#education').append(replaceData(i, HTMLonlineStart));
+      var id = '#online-entry-' + j;
+      var online = this.onlineCourses[j];
+      $(id).append(replaceData(online.title, HTMLonlineTitle) + replaceData(online.school, HTMLonlineSchool))
+           .append(replaceData(online.date, HTMLonlineDates))
+           .append(replaceData(online.url, HTMLonlineURL).replace('#', online.url));
+    }
   }
 };
 
@@ -80,7 +111,16 @@ var work = {
     }
   ],
   'display': function() {
-
+    for (var i in this.jobs) {
+      $('#workExperience').append(replaceData(i, HTMLworkStart));
+      var id = '#work-entry-' + i;
+      var job = this.jobs[i];
+      $(id).append((replaceData(job.employer, HTMLworkEmployer) + replaceData(job.title, HTMLworkTitle))
+           .replace('href="#"', ''))
+           .append(replaceData(job.dates, HTMLworkDates))
+           .append(replaceData(job.location, HTMLworkLocation))
+           .append(replaceData(job.description, HTMLworkDescription));
+    }
   }
 };
 
@@ -88,16 +128,26 @@ var projects = {
   'projects': [
     {'title': 'Interactive Resume',
      'dates': '2014-2015',
-     'description': 'NotYetImplemented',
+     'description': 'Nothing here... except for some kittens from placekitten.com',
      'images': [
-       'http://placekitten.com/300/300',
-       'http://placekitten.com/300/200',
-       'http://placekitten.com/300/100'
+       'http://placekitten.com/g/300/300',
+       'http://placekitten.com/g/250/300',
+       'http://placekitten.com/g/350/300'
      ]
     }
   ],
   'display': function() {
-
+    for (var i in this.projects) {
+      $('#projects').append(replaceData(i, HTMLprojectStart));
+      var id = '#project-entry-' + i;
+      var project = this.projects[i];
+      $(id).append(replaceData(project.title, HTMLprojectTitle))
+           .append(replaceData(project.dates, HTMLprojectDates))
+           .append(replaceData(project.description, HTMLprojectDescription));
+      for (var j in project.images) {
+        $(id).append(replaceData(project.images[j], HTMLprojectImage));
+      }
+    }
   }
 };
 
@@ -105,3 +155,16 @@ bio.display();
 education.display();
 work.display();
 projects.display();
+
+$('#mapDiv').append(googleMap);
+
+
+// $('#main').append(internationalizeButton);
+function inName(name) {
+  name = name.trim().split(" ");
+  console.log(name);
+  name[1] = name[1].toUpperCase();
+  name[0] = name[0].slice(0,1).toUpperCase() +
+    name[0].slice(1).toLowerCase();
+  return name[0] + " " + name[1];
+}
